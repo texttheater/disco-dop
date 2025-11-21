@@ -29,8 +29,8 @@ docs:
 docs-venv:
 	@set -u; echo Installing disco-dop man pages to virtual environment $$VIRTUAL_ENV
 	mkdir -p $$VIRTUAL_ENV/man/man1
-	cd docs && make man && cp _build/man/* $$VIRTUAL_ENV/man/man1
-	cd docs && make html
+	cd docs && make SPHINXBUILD=sphinx-build man && cp _build/man/* $$VIRTUAL_ENV/man/man1
+	cd docs && make SPHINXBUILD=sphinx-build html
 
 install: discodop docs
 
