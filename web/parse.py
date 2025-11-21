@@ -16,10 +16,11 @@ import random
 import logging
 import math
 from operator import itemgetter
-from flask import Flask, Markup, Response, redirect, url_for
+from urllib.parse import urlencode
+from flask import Flask, Response, redirect, url_for
 from flask import request, render_template, send_from_directory
+from markupsafe import Markup
 from cachelib import SimpleCache
-from werkzeug.urls import url_encode
 from discodop import treebank
 from discodop.tree import (Tree, DrawTree, DrawDependencies,
 		writediscbrackettree)
@@ -75,8 +76,8 @@ def parse():
 		default = allowedoptions[0]
 		given = request.args.get(key, default)
 		if given not in allowedoptions:
-			return 'invalid %r argument %r; should be one of %r' % (
-					key, given, allowedoptions)
+			return 'invalid %r argument; should be one of %r' % (
+					key, allowedoptions)
 	sent = request.args.get('sent', None)
 	objfun = request.args.get('objfun', 'mpp')
 	est = request.args.get('est', 'rfe')
@@ -98,7 +99,7 @@ def parse():
 	if lang == 'detect':
 		lang = guesslang(senttok)
 	elif lang not in PARSERS:
-		return 'unknown language %r; languages: %r' % (lang, PARSERS.keys())
+		return 'unrecognized lang value; languages: %r' % (PARSERS.keys())
 	if 'require' in request.args:
 		require = validatespans(request.args.get('require', None), senttok)
 		if not require:
@@ -117,7 +118,7 @@ def parse():
 			urlparams['require'] = json.dumps(require)
 		if block:
 			urlparams['block'] = json.dumps(block)
-		link = '?' + url_encode(urlparams)
+		link = '?' + urlencode(urlparams)
 		PARSERS[lang].stages[-1].estimator = est
 		PARSERS[lang].stages[-1].objective = objfun
 		PARSERS[lang].stages[-1].kbest = marg in ('nbest', 'both')
